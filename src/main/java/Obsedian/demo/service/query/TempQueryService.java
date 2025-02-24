@@ -1,4 +1,4 @@
-package ExamBattle.demo.service.query;
+package Obsedian.demo.service.query;
 
 public interface TempQueryService {
 

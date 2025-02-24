@@ -1,4 +1,4 @@
-package ExamBattle.demo.domain.common;
+package Obsedian.demo.domain.common;
 
 import java.time.LocalDateTime;
 

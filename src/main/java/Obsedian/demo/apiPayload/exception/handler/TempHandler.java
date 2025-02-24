@@ -1,6 +1,6 @@
-package ExamBattle.demo.apiPayload.exception.handler;
+package Obsedian.demo.apiPayload.exception.handler;
 
-import ExamBattle.demo.apiPayload.code.status.ErrorStatus;
+import Obsedian.demo.apiPayload.code.status.ErrorStatus;
 
 public class TempHandler extends RuntimeException {
 	public TempHandler(ErrorStatus errorStatus) {

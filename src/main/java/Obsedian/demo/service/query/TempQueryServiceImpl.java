@@ -1,9 +1,9 @@
-package ExamBattle.demo.service.query;
+package Obsedian.demo.service.query;
 
 import org.springframework.stereotype.Service;
 
-import ExamBattle.demo.apiPayload.code.status.ErrorStatus;
-import ExamBattle.demo.apiPayload.exception.handler.TempHandler;
+import Obsedian.demo.apiPayload.code.status.ErrorStatus;
+import Obsedian.demo.apiPayload.exception.handler.TempHandler;
 import lombok.RequiredArgsConstructor;
 
 

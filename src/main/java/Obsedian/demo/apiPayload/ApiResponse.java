@@ -1,10 +1,10 @@
-package ExamBattle.demo.apiPayload;
+package Obsedian.demo.apiPayload;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import ExamBattle.demo.apiPayload.code.status.SuccessStatus;
+import Obsedian.demo.apiPayload.code.status.SuccessStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

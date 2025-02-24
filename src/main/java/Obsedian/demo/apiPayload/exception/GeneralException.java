@@ -1,7 +1,7 @@
-package ExamBattle.demo.apiPayload.exception;
+package Obsedian.demo.apiPayload.exception;
 
-import ExamBattle.demo.apiPayload.code.ErrorReasonDTO;
-import ExamBattle.demo.apiPayload.code.status.ErrorStatus;
+import Obsedian.demo.apiPayload.code.ErrorReasonDTO;
+import Obsedian.demo.apiPayload.code.status.ErrorStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 @Getter

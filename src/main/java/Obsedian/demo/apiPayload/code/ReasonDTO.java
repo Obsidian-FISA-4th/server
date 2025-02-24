@@ -1,4 +1,4 @@
-package ExamBattle.demo.apiPayload.code;
+package Obsedian.demo.apiPayload.code;
 
 import org.springframework.http.HttpStatus;
 
@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ErrorReasonDTO { // DTO는 DataTransfer Object로 데이터를 주거나 받을때의 형태를 지정한다.
+public class ReasonDTO {
 
     private HttpStatus httpStatus;
 

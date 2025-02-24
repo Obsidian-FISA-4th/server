@@ -1,4 +1,4 @@
-package ExamBattle.demo.service.command;
+package Obsedian.demo.service.command;
 
 import org.springframework.stereotype.Service;
 

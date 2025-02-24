@@ -1,10 +1,9 @@
-package ExamBattle.demo.apiPayload.exception;
+package Obsedian.demo.apiPayload.exception;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -17,9 +16,9 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import ExamBattle.demo.apiPayload.ApiResponse;
-import ExamBattle.demo.apiPayload.code.ErrorReasonDTO;
-import ExamBattle.demo.apiPayload.code.status.ErrorStatus;
+import Obsedian.demo.apiPayload.ApiResponse;
+import Obsedian.demo.apiPayload.code.ErrorReasonDTO;
+import Obsedian.demo.apiPayload.code.status.ErrorStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 

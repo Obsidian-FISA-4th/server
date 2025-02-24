@@ -1,4 +1,4 @@
-package ExamBattle.demo;
+package Obsedian.demo;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

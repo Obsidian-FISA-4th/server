@@ -1,4 +1,4 @@
-package ExamBattle.demo.service.command;
+package Obsedian.demo.service.command;
 
 public interface TempCommandService {
 }

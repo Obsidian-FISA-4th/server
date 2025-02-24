@@ -1,4 +1,4 @@
-package ExamBattle.demo.apiPayload.code;
+package Obsedian.demo.apiPayload.code;
 
 public interface BaseErrorCode {
 	ErrorReasonDTO getReason();

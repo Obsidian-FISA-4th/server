@@ -1,9 +1,9 @@
-package ExamBattle.demo.apiPayload.code.status;
+package Obsedian.demo.apiPayload.code.status;
 
 import org.springframework.http.HttpStatus;
 
-import ExamBattle.demo.apiPayload.code.BaseErrorCode;
-import ExamBattle.demo.apiPayload.code.ErrorReasonDTO;
+import Obsedian.demo.apiPayload.code.BaseErrorCode;
+import Obsedian.demo.apiPayload.code.ErrorReasonDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
