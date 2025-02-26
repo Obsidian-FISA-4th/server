@@ -1,10 +1,10 @@
-package Obsedian.demo.apiPayload;
+package Obsidian.demo.apiPayload;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import Obsedian.demo.apiPayload.code.status.SuccessStatus;
+import Obsidian.demo.apiPayload.code.status.SuccessStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

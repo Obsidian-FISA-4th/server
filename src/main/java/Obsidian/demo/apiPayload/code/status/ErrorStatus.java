@@ -1,9 +1,9 @@
-package Obsedian.demo.apiPayload.code.status;
+package Obsidian.demo.apiPayload.code.status;
 
 import org.springframework.http.HttpStatus;
 
-import Obsedian.demo.apiPayload.code.BaseErrorCode;
-import Obsedian.demo.apiPayload.code.ErrorReasonDTO;
+import Obsidian.demo.apiPayload.code.BaseErrorCode;
+import Obsidian.demo.apiPayload.code.ErrorReasonDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

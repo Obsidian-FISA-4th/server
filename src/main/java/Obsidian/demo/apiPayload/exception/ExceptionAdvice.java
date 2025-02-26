@@ -1,4 +1,4 @@
-package Obsedian.demo.apiPayload.exception;
+package Obsidian.demo.apiPayload.exception;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -16,9 +16,9 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import Obsedian.demo.apiPayload.ApiResponse;
-import Obsedian.demo.apiPayload.code.ErrorReasonDTO;
-import Obsedian.demo.apiPayload.code.status.ErrorStatus;
+import Obsidian.demo.apiPayload.ApiResponse;
+import Obsidian.demo.apiPayload.code.ErrorReasonDTO;
+import Obsidian.demo.apiPayload.code.status.ErrorStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,13 +1,13 @@
-package Obsedian.demo;
+package Obsidian.demo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ObsedianApplication {
+public class ObsidianApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ObsedianApplication.class, args);
+		SpringApplication.run(ObsidianApplication.class, args);
 	}
 
 }

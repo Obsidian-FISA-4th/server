@@ -1,6 +1,6 @@
-package Obsedian.demo.apiPayload.exception.handler;
+package Obsidian.demo.apiPayload.exception.handler;
 
-import Obsedian.demo.apiPayload.code.status.ErrorStatus;
+import Obsidian.demo.apiPayload.code.status.ErrorStatus;
 
 public class TempHandler extends RuntimeException {
 	public TempHandler(ErrorStatus errorStatus) {

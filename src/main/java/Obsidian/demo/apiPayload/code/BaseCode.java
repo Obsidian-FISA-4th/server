@@ -1,4 +1,4 @@
-package Obsedian.demo.apiPayload.code;
+package Obsidian.demo.apiPayload.code;
 
 public interface BaseCode {
 	ReasonDTO getReason();

@@ -1,4 +1,4 @@
-package Obsedian.demo.apiPayload.code;
+package Obsidian.demo.apiPayload.code;
 
 import org.springframework.http.HttpStatus;
 

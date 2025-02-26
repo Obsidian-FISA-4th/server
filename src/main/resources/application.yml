@@ -17,3 +17,9 @@ spring:
         hbm2ddl:
           auto: update
         default_batch_fetch_size: 1000
+
+
+jwt:
+  secret-key: "1aec1b0d33fb5bb670e4743abf5afa35dd3c707d35f1ab9f674e1032b7a8be89"
+  expiration: 86400000
+  cookie-name: "accessToken"

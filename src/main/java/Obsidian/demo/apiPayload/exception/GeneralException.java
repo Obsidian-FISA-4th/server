@@ -1,7 +1,7 @@
-package Obsedian.demo.apiPayload.exception;
+package Obsidian.demo.apiPayload.exception;
 
-import Obsedian.demo.apiPayload.code.ErrorReasonDTO;
-import Obsedian.demo.apiPayload.code.status.ErrorStatus;
+import Obsidian.demo.apiPayload.code.ErrorReasonDTO;
+import Obsidian.demo.apiPayload.code.status.ErrorStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 @Getter
