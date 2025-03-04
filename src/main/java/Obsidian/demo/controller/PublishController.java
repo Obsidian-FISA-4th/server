@@ -15,6 +15,7 @@ import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
 
+import Obsidian.demo.apiPayload.ApiResponse;
 import Obsidian.demo.dto.PublishRequestDTO;
 import Obsidian.demo.service.command.PublishService;
 import lombok.Getter;
@@ -28,7 +29,7 @@ public class PublishController {
 	private final PublishService publishService;
 
 	@PostMapping("/publish")
-	public ResponseEntity<?> publishMarkdown(@RequestBody PublishRequestDTO request) {
-		return publishService.publishMarkdownFiles(request.getFilePaths());
+	public ApiResponse<List<String>> publishMarkdown(@RequestBody PublishRequestDTO request) {
+		return ApiResponse.onSuccess(publishService.publishMarkdownFiles(request.getFilePaths()));
 	}
 }

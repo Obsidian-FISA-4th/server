@@ -6,6 +6,7 @@ import Obsidian.demo.apiPayload.exception.GeneralException;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -28,8 +29,7 @@ public class PublishService {
 	private final String vaultPath = homeDir + "/note/";
 	private final String publicPath = homeDir + "/note/public";
 
-
-	public ResponseEntity<?> publishMarkdownFiles(List<String> filePaths) {
+	public List<String> publishMarkdownFiles(List<String> filePaths) {
 		// 배포 디렉토리 초기화
 		if (!clearPublicDirectory()) {
 			throw new GeneralException(ErrorStatus.PUBLIC_DIRECTORY_CLEAR_ERROR);
@@ -39,9 +39,8 @@ public class PublishService {
 			.map(this::processMarkdownFile)
 			.collect(Collectors.toList());
 
-		return ResponseEntity.ok("Published successfully! Files: " + publishedFiles);
+		return publishedFiles;
 	}
-
 
 	private String processMarkdownFile(String filePath) {
 		File markdownFile = validateFileExistence(filePath);
@@ -64,7 +63,6 @@ public class PublishService {
 		return htmlFile.getPath();
 	}
 
-
 	private File validateFileExistence(String filePath) {
 		File markdownFile = new File(vaultPath + filePath);
 		if (!markdownFile.exists()) {
@@ -78,7 +76,6 @@ public class PublishService {
 			throw new GeneralException(ErrorStatus.DIRECTORY_CREATE_ERROR);
 		}
 	}
-
 
 	private String readMarkdownFile(File markdownFile) {
 		try {
@@ -107,7 +104,6 @@ public class PublishService {
 		}
 	}
 
-
 	private void saveHtmlFile(File htmlFile, String htmlContent) {
 		try {
 			Files.writeString(htmlFile.toPath(), htmlContent, StandardCharsets.UTF_8);
@@ -115,7 +111,6 @@ public class PublishService {
 			throw new GeneralException(ErrorStatus.HTML_SAVE_ERROR);
 		}
 	}
-
 
 	private boolean clearPublicDirectory() {
 		Path publicDir = Paths.get(publicPath);
