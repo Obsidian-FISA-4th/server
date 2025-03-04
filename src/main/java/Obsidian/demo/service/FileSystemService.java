@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FileSystemService {
 
-    private final String rootPath = "C:\\obsidian_test"; // 기본 경로
+    private final String rootPath = ""; // 기본 경로
 
     /**
      * 루트 경로부터 파일 트리 조회
@@ -40,7 +40,7 @@ public class FileSystemService {
     /**
      * 파일 또는 폴더 생성
      */
-    public void createFileOrFolder(String relativePath) throws IOException {
+    public void createFileOrFolder(String relativePath, String type) throws IOException {
         String fullPath = rootPath + File.separator + relativePath;
         Path path = Paths.get(fullPath);
 
@@ -48,14 +48,17 @@ public class FileSystemService {
             throw new RuntimeException("이미 존재하는 파일/폴더: " + fullPath);
         }
 
-        if (relativePath.contains(".")) {
+        if ("file".equalsIgnoreCase(type)) {
             Files.createFile(path);
             log.info("파일 생성: {}", fullPath);
-        } else {
+        } else if ("folder".equalsIgnoreCase(type)) {
             Files.createDirectories(path);
             log.info("폴더 생성: {}", fullPath);
+        } else {
+            throw new IllegalArgumentException("잘못된 type 값: " + type);
         }
     }
+
 
     /**
      * 파일 또는 폴더 이동
