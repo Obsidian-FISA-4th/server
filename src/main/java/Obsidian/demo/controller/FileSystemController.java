@@ -42,9 +42,9 @@ public class FileSystemController {
      * 파일 또는 폴더 생성
      */
     @PostMapping("/create")
-    public ApiResponse<String> createFileOrFolder(@RequestParam String path) {
+    public ApiResponse<String> createFileOrFolder(@RequestParam String path, @RequestParam String type) {
         try {
-            fileSystemService.createFileOrFolder(path);
+            fileSystemService.createFileOrFolder(path, type);
             return ApiResponse.onSuccess("파일 또는 폴더 생성 성공");
         } catch (Exception e) {
             return ApiResponse.onFailure("CREATE_ERROR", e.getMessage(), null);
