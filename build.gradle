@@ -24,6 +24,8 @@ repositories {
 }
 
 dependencies {
+	implementation 'commons-io:commons-io:2.14.0'
+	implementation 'com.vladsch.flexmark:flexmark-all:0.64.8'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'

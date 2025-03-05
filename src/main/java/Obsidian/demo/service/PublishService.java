@@ -1,4 +1,4 @@
-package Obsidian.demo.service.command;
+package Obsidian.demo.service;
 
 import Obsidian.demo.apiPayload.code.status.ErrorStatus;
 import Obsidian.demo.apiPayload.exception.GeneralException;
