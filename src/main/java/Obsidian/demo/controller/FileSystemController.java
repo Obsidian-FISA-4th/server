@@ -5,16 +5,13 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import Obsidian.demo.apiPayload.ApiResponse;
-import Obsidian.demo.dto.FileCreateRequestDto;
 import Obsidian.demo.dto.FileNodeDto;
 import Obsidian.demo.service.FileSystemService;
 import lombok.RequiredArgsConstructor;
@@ -45,9 +42,9 @@ public class FileSystemController {
     public ApiResponse<String> createFileOrFolder(@RequestParam String path, @RequestParam String type) {
         try {
             fileSystemService.createFileOrFolder(path, type);
-            return ApiResponse.onSuccess("파일 또는 폴더 생성 성공");
+            return ApiResponse.onSuccess("파일 또는 폴더 생성 성공 : " + path);
         } catch (Exception e) {
-            return ApiResponse.onFailure("CREATE_ERROR", e.getMessage(), null);
+            return ApiResponse.onFailure("CREATE_ERROR", "파일 또는 폴더 생성 실패 : " + e.getMessage(), null);
         }
     }
 
@@ -60,9 +57,10 @@ public class FileSystemController {
             @RequestParam String to) {
         try {
             fileSystemService.moveFileOrFolder(path, to);
-            return ApiResponse.onSuccess("파일 또는 폴더 이동 성공");
+            return ApiResponse.onSuccess("파일 또는 폴더 이동 성공 : " + path + " --> " + to);
         } catch (Exception e) {
-            return ApiResponse.onFailure("MOVE_ERROR", e.getMessage(), null);
+            e.printStackTrace();
+            return ApiResponse.onFailure("MOVE_ERROR", "파일 또는 폴더 이동 실패 : " + e.getMessage(), null);
         }
     }
 
@@ -73,9 +71,9 @@ public class FileSystemController {
     public ApiResponse<String> deleteFileOrFolder(@RequestParam String path){
         try{
             fileSystemService.deleteFileOrFolder(path);
-            return ApiResponse.onSuccess("파일 또는 폴더 삭제 성공");
+            return ApiResponse.onSuccess("파일 또는 폴더 삭제 성공 : " + path);
         } catch (Exception e) {
-            return ApiResponse.onFailure("DELETE_ERROR", e.getMessage(), null);
+            return ApiResponse.onFailure("DELETE_ERROR", "파일 또는 폴더 삭제 실패 : " + e.getMessage(), null);
         }
     }
 }
