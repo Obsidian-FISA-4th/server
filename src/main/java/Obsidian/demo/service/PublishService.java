@@ -30,10 +30,10 @@ public class PublishService {
 	private final String publicPath = homeDir + "/note/public";
 
 	public List<String> publishMarkdownFiles(List<String> filePaths) {
-		// 배포 디렉토리 초기화
-		if (!clearPublicDirectory()) {
-			throw new GeneralException(ErrorStatus.PUBLIC_DIRECTORY_CLEAR_ERROR);
-		}
+		// // 배포 디렉토리 초기화
+		// if (!clearPublicDirectory()) {
+		// 	throw new GeneralException(ErrorStatus.PUBLIC_DIRECTORY_CLEAR_ERROR);
+		// }
 
 		List<String> publishedFiles = filePaths.stream()
 			.map(this::processMarkdownFile)
