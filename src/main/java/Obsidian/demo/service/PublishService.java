@@ -2,6 +2,10 @@ package Obsidian.demo.service;
 
 import Obsidian.demo.apiPayload.code.status.ErrorStatus;
 import Obsidian.demo.apiPayload.exception.GeneralException;
+import Obsidian.demo.dto.PublishRequestDTO;
+import Obsidian.demo.dto.PublishResultDTO;
+import Obsidian.demo.dto.UnpublishRequestDTO;
+import Obsidian.demo.dto.UnpublishResultDTO;
 
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
@@ -27,9 +31,10 @@ public class PublishService {
 
 	private final String homeDir = System.getProperty("user.home");
 	private final String vaultPath = homeDir + "/note/";
-	private final String publicPath = homeDir + "/note/public";
+	private final String publicPath = homeDir + "/note/public/";
 
-	public List<String> publishMarkdownFiles(List<String> filePaths) {
+	public PublishResultDTO publishMarkdownFiles(PublishRequestDTO request) {
+		List<String> filePaths = request.getFilePaths();
 		// // 배포 디렉토리 초기화
 		// if (!clearPublicDirectory()) {
 		// 	throw new GeneralException(ErrorStatus.PUBLIC_DIRECTORY_CLEAR_ERROR);
@@ -39,7 +44,28 @@ public class PublishService {
 			.map(this::processMarkdownFile)
 			.collect(Collectors.toList());
 
-		return publishedFiles;
+		return PublishResultDTO.builder()
+			.filePaths(publishedFiles)
+			.build();
+	}
+	public UnpublishResultDTO unpublishFiles(UnpublishRequestDTO request) {
+		List<String> deletedFiles = request.getFilePaths().stream()
+			.map(filePath -> new File(publicPath + filePath))
+			.filter(file -> file.exists() && file.isFile())
+			.peek(file -> {
+				try {
+					System.out.println("deleted File:"+file.getName());
+					Files.delete(file.toPath());
+				} catch (Exception e) {
+					throw new GeneralException(ErrorStatus.PUBLIC_DIRECTORY_CLEAR_ERROR);
+				}
+			})
+			.map(File::getName)
+			.collect(Collectors.toList());
+
+		return UnpublishResultDTO.builder()
+			.filePaths(deletedFiles)
+			.build();
 	}
 
 	private String processMarkdownFile(String filePath) {
