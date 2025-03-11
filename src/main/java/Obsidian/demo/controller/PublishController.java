@@ -25,6 +25,6 @@ public class PublishController {
 	}
 	@DeleteMapping("/unpublish")
 	public ApiResponse<UnpublishResultDTO> unpublishMarkdown(@RequestBody UnpublishRequestDTO request) {
-		return ApiResponse.onSuccess(publishService.unpublishFiles(request));
+		return ApiResponse.onSuccess(publishService.unPublishFiles(request));
 	}
 }
