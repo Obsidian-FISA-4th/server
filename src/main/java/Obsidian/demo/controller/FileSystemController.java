@@ -3,6 +3,7 @@ package Obsidian.demo.controller;
 import java.io.IOException;
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import Obsidian.demo.apiPayload.ApiResponse;
 import Obsidian.demo.dto.FileCreateRequestDto;
 import Obsidian.demo.dto.FileNodeDto;
+import Obsidian.demo.dto.MarkDownSaveRequestDTO;
 import Obsidian.demo.service.FileSystemService;
 import lombok.RequiredArgsConstructor;
 
@@ -78,4 +80,14 @@ public class FileSystemController {
             return ApiResponse.onFailure("DELETE_ERROR", e.getMessage(), null);
         }
     }
+    @PostMapping("/save")
+    public ResponseEntity<ApiResponse<String>> saveMarkdown(@RequestBody MarkDownSaveRequestDTO requestDTO) {
+        try {
+            fileSystemService.saveMarkdown(requestDTO);
+            return ResponseEntity.ok(ApiResponse.onSuccess("마크다운 파일 저장 성공"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(ApiResponse.onFailure("MARKDOWN_SAVE_ERROR", e.getMessage(), null));
+        }
+    }
+
 }
