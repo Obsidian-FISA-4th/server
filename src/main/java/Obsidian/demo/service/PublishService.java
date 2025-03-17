@@ -2,12 +2,15 @@ package Obsidian.demo.service;
 
 import Obsidian.demo.apiPayload.code.status.ErrorStatus;
 import Obsidian.demo.apiPayload.exception.GeneralException;
+import Obsidian.demo.dto.PublishRequestDTO;
+import Obsidian.demo.dto.PublishResultDTO;
+import Obsidian.demo.dto.UnpublishRequestDTO;
+import Obsidian.demo.dto.UnpublishResultDTO;
 
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -19,7 +22,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,19 +33,64 @@ public class PublishService {
 
 	private final String homeDir = System.getProperty("user.home");
 	private final String vaultPath = homeDir + "/note/";
-	private final String publicPath = homeDir + "/note/public";
+	private final String publicPath = homeDir + "/note/public/";
 
-	public List<String> publishMarkdownFiles(List<String> filePaths) {
-		// 배포 디렉토리 초기화
-		if (!clearPublicDirectory()) {
-			throw new GeneralException(ErrorStatus.PUBLIC_DIRECTORY_CLEAR_ERROR);
-		}
-
+	public PublishResultDTO publishMarkdownFiles(PublishRequestDTO request) {
+		List<String> filePaths = request.getFilePaths();
 		List<String> publishedFiles = filePaths.stream()
 			.map(this::processMarkdownFile)
 			.collect(Collectors.toList());
 
-		return publishedFiles;
+		return PublishResultDTO.builder()
+			.filePaths(publishedFiles)
+			.build();
+	}
+	public UnpublishResultDTO unPublishFiles(UnpublishRequestDTO request) {
+		List<String> deletedFiles = deleteFiles(request.getFilePaths());
+		deleteEmptyDirectories(request.getFilePaths());
+		return new UnpublishResultDTO(deletedFiles);
+	}
+
+	// 개별 파일 삭제
+	private List<String> deleteFiles(List<String> filePaths) {
+		List<String> deletedFiles = new ArrayList<>();
+
+		for (String filePath : filePaths) {
+			File file = new File(publicPath + filePath);
+			if (file.exists() && file.isFile()) {
+				try {
+					System.out.println("Deleted File: " + file.getName());
+					Files.delete(file.toPath());
+					deletedFiles.add(file.getName());
+				} catch (Exception e) {
+					throw new GeneralException(ErrorStatus.PUBLIC_DIRECTORY_CLEAR_ERROR);
+				}
+			}
+		}
+
+		return deletedFiles;
+	}
+
+	// 삭제 후 비어있는 폴더 삭제
+	private void deleteEmptyDirectories(List<String> filePaths) {
+		Set<File> checkedDirectories = new HashSet<>();
+
+		for (String filePath : filePaths) {
+			File parentDir = new File(publicPath + filePath).getParentFile();
+
+			// 동일한 폴더를 중복 검사하지 않도록 Set 사용
+			if (parentDir != null && parentDir.exists() && parentDir.isDirectory() && checkedDirectories.add(parentDir)) {
+				File[] remainingFiles = parentDir.listFiles();
+				if (remainingFiles == null || remainingFiles.length == 0) {
+					try {
+						System.out.println("Deleted Empty Folder: " + parentDir.getAbsolutePath());
+						Files.delete(parentDir.toPath());
+					} catch (Exception e) {
+						throw new GeneralException(ErrorStatus.PUBLIC_DIRECTORY_CLEAR_ERROR);
+					}
+				}
+			}
+		}
 	}
 
 	private String processMarkdownFile(String filePath) {

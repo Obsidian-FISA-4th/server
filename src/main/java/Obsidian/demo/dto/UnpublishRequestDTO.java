@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class PublishRequestDTO {
+public class UnpublishRequestDTO {
 	private List<String> filePaths;
 }
