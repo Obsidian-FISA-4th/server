@@ -25,7 +25,8 @@ public enum ErrorStatus implements BaseErrorCode {
 	MARKDOWN_CONVERT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "MARKDOWN5002", "마크다운을 HTML로 변환하는 도중 오류가 발생했습니다."),
 	HTML_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "MARKDOWN5003", "변환된 HTML 파일을 저장하는 도중 오류가 발생했습니다."),
 	DIRECTORY_CREATE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "MARKDOWN5004", "배포 경로 디렉토리를 생성하는 데 실패했습니다."),
-	PUBLIC_DIRECTORY_CLEAR_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "MARKDOWN5005", "배포 경로(publicPath)를 정리하는 도중 오류가 발생했습니다.");
+	PUBLIC_DIRECTORY_CLEAR_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "MARKDOWN5005", "배포 경로(publicPath)를 정리하는 도중 오류가 발생했습니다."),
+	MARKDOWN_SAVE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "MARKDOWN5006", "마크다운 파일 저장 중 오류가 발생했습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String code;

@@ -1,7 +1,10 @@
 package Obsidian.demo.service;
 
 
+import Obsidian.demo.apiPayload.code.status.ErrorStatus;
+import Obsidian.demo.apiPayload.exception.GeneralException;
 import Obsidian.demo.dto.FileNodeDto;
+import Obsidian.demo.dto.MarkDownSaveRequestDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +21,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FileSystemService {
 
-    private final String rootPath = ""; // 기본 경로
+    private final String rootPath = System.getProperty("user.home");
+    private final String vaultPath = rootPath + "/note/";
 
     /**
      * 루트 경로부터 파일 트리 조회
@@ -128,5 +132,20 @@ public class FileSystemService {
         }
 
         return new FileNodeDto(path.getFileName().toString(), isFolder, path.toString(), children);
+    }
+
+    public void saveMarkdown(MarkDownSaveRequestDTO requestDTO) {
+        try {
+            Path storagePath = Paths.get(vaultPath);
+            if (!Files.exists(storagePath)) {
+                Files.createDirectories(storagePath);
+            }
+
+            Path filePath = storagePath.resolve(requestDTO.getFileName() + ".md");
+            Files.write(filePath, requestDTO.getContent().getBytes());
+        } catch (IOException e) {
+            log.error("Markdown 저장 중 오류 발생: {}", e.getMessage());
+            throw new GeneralException(ErrorStatus.MARKDOWN_SAVE_ERROR);
+        }
     }
 }
