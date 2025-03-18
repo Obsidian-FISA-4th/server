@@ -14,7 +14,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 
 @Configuration
@@ -44,6 +46,8 @@ public class RedisConfig {
 
 		// JSON 직렬화 설정 추가
 		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, false);
+		objectMapper.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, false);
 		objectMapper.activateDefaultTyping(
 			LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL
 		);
