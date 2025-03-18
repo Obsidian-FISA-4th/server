@@ -18,6 +18,14 @@ public class ApiKeyFilter implements Filter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
 
+        String requestUri = httpServletRequest.getRequestURI();
+
+        // Swagger 관련 요청은 필터 예외 처리
+        if (requestUri.startsWith("/swagger-ui") || requestUri.startsWith("/v3/api-docs")) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
+
         // 요청 헤더에서 API Key 가져오기
         String requestApiKey = httpServletRequest.getHeader("X-API-KEY");
 

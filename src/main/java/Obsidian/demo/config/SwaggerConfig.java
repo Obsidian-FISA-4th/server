@@ -20,14 +20,20 @@ public class SwaggerConfig {
                 .description("우리 FISA 옵시디언 API 명세서")
                 .version("1.0.0");
 
-        String jwtSchemeName = "JWT TOKEN";
-        SecurityRequirement securityRequirement = new SecurityRequirement().addList(jwtSchemeName);
+        // API Key 인증 방식
+        String apiKeySchemeName = "X-API-KEY";
+        SecurityScheme apiKeySecurityScheme = new SecurityScheme()
+                .name(apiKeySchemeName)
+                .type(SecurityScheme.Type.APIKEY)
+                .in(SecurityScheme.In.HEADER)
+                .name("X-API-KEY");
+
+        // SecurityRequirement 추가
+        SecurityRequirement securityRequirement = new SecurityRequirement()
+                .addList(apiKeySchemeName);
+
         Components components = new Components()
-                .addSecuritySchemes(jwtSchemeName, new SecurityScheme()
-                        .name(jwtSchemeName)
-                        .type(SecurityScheme.Type.HTTP)
-                        .scheme("bearer")
-                        .bearerFormat("JWT"));
+                .addSecuritySchemes(apiKeySchemeName, apiKeySecurityScheme);
 
         return new OpenAPI()
                 .addServersItem(new Server().url("/"))
