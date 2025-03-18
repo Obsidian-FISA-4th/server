@@ -2,7 +2,9 @@ package Obsidian.demo.controller;
 
 import Obsidian.demo.apiPayload.ApiResponse;
 import Obsidian.demo.service.ImageUploadService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,15 +16,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ImageUploadController {
 
-    private final ImageUploadService imageUploadService;
+	private final ImageUploadService imageUploadService;
 
-    @PostMapping("/images")
-    public ApiResponse<List<String>> uploadImageFiles(@RequestParam("files") MultipartFile[] files) {
-        try {
-            List<String> fileNames = imageUploadService.uploadImageFiles(files);
-            return ApiResponse.onSuccess(fileNames.stream().toList());
-        } catch (IOException e) {
-            return ApiResponse.onFailure("CREATE_ERROR", e.getMessage(), null);
-        }
-    }
+	@PostMapping("/images")
+	@Operation(summary = "이미지 파일 업로드", description = "이미지 파일을 업로드하고, 업로드된 파일들의 URL을 반환합니다.")
+	public ApiResponse<List<String>> uploadImageFiles(@RequestParam("files") MultipartFile[] files) {
+		try {
+			List<String> fileNames = imageUploadService.uploadImageFiles(files);
+			return ApiResponse.onSuccess(fileNames.stream().toList());
+		} catch (IOException e) {
+			return ApiResponse.onFailure("CREATE_ERROR", e.getMessage(), null);
+		}
+	}
 }

@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import Obsidian.demo.apiPayload.ApiResponse;
-import Obsidian.demo.dto.FileCreateRequestDto;
 import Obsidian.demo.dto.FileNodeDto;
 import Obsidian.demo.dto.MarkDownSaveRequestDTO;
 import Obsidian.demo.service.FileSystemService;
@@ -24,13 +25,12 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
+@Tag(name = "파일 시스템 API", description = "파일 및 폴더 관련 기능을 제공하는 API")
 public class FileSystemController {
 
     private final FileSystemService fileSystemService;
 
-    /**
-     * 파일 및 폴더 조회 (트리 구조)
-     */
+    @Operation(summary = "파일 및 폴더 조회", description = "~/note 폴더 하위 파일 및 폴더의 트리 구조를 조회합니다.")
     @GetMapping
     public ApiResponse<List<FileNodeDto>> getFileTree() {
         try {
@@ -40,11 +40,10 @@ public class FileSystemController {
         }
     }
 
-    /**
-     * 파일 또는 폴더 생성
-     */
+
+    @Operation(summary = "파일 또는 폴더 생성", description = "지정된 경로에 파일 또는 폴더를 생성합니다.")
     @PostMapping("/create")
-    public ApiResponse<String> createFileOrFolder(@RequestParam String path, @RequestParam String type) {
+    public ApiResponse<String> createFileOrFolder(@RequestParam("path") String path, @RequestParam ("type") String type) {
         try {
             fileSystemService.createFileOrFolder(path, type);
             return ApiResponse.onSuccess("파일 또는 폴더 생성 성공");
@@ -53,13 +52,11 @@ public class FileSystemController {
         }
     }
 
-    /**
-     * 파일 또는 폴더 이동
-     */
+    @Operation(summary = "파일 또는 폴더 이동", description = "지정된 파일 또는 폴더를 타겟 폴더로 이동시킵니다.")
     @PutMapping("/move")
     public ApiResponse<String> moveFileOrFolder(
-            @RequestParam String path,
-            @RequestParam String to) {
+        @RequestParam String path,
+        @RequestParam String to) {
         try {
             fileSystemService.moveFileOrFolder(path, to);
             return ApiResponse.onSuccess("파일 또는 폴더 이동 성공");
@@ -68,9 +65,8 @@ public class FileSystemController {
         }
     }
 
-    /**
-     * 파일 또는 폴더 삭제
-     */
+
+    @Operation(summary = "파일 또는 폴더 삭제", description = "지정된 파일 또는 폴더를 삭제합니다.")
     @DeleteMapping("/delete")
     public ApiResponse<String> deleteFileOrFolder(@RequestParam String path){
         try{
@@ -80,6 +76,9 @@ public class FileSystemController {
             return ApiResponse.onFailure("DELETE_ERROR", e.getMessage(), null);
         }
     }
+
+
+    @Operation(summary = "마크다운 저장", description = "마크다운 파일을 저장합니다.")
     @PostMapping("/save")
     public ResponseEntity<ApiResponse<String>> saveMarkdown(@RequestBody MarkDownSaveRequestDTO requestDTO) {
         try {
