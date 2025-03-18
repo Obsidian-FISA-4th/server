@@ -28,7 +28,7 @@ public class FileSystemService {
      * 루트 경로부터 파일 트리 조회
      */
     public List<FileNodeDto> getFileTree() throws IOException {
-        Path root = Paths.get(rootPath);
+        Path root = Paths.get(vaultPath);
         if (!Files.exists(root)) {
             Files.createDirectories(root);
         }
