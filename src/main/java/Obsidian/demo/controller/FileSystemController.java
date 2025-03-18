@@ -43,7 +43,7 @@ public class FileSystemController {
 
     @Operation(summary = "파일 또는 폴더 생성", description = "지정된 경로에 파일 또는 폴더를 생성합니다.")
     @PostMapping("/create")
-    public ApiResponse<String> createFileOrFolder(@RequestParam String path, @RequestParam String type) {
+    public ApiResponse<String> createFileOrFolder(@RequestParam("path") String path, @RequestParam ("type") String type) {
         try {
             fileSystemService.createFileOrFolder(path, type);
             return ApiResponse.onSuccess("파일 또는 폴더 생성 성공");

@@ -1,10 +1,8 @@
-server:
-  port: ${PORT}
 spring:
   datasource:
-    url: ${URL}
-    username: ${USER}
-    password: ${PASSWORD}
+    url: jdbc:mysql://localhost:3306/${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PW}
     driver-class-name: com.mysql.cj.jdbc.Driver
   sql:
     init:
@@ -19,7 +17,9 @@ spring:
         hbm2ddl:
           auto: update
         default_batch_fetch_size: 1000
-
+  redis:
+    host: localhost
+    port: 6379
 springdoc:
   swagger-ui:
     path: /
