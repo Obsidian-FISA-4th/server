@@ -5,7 +5,3 @@ spring:
 springdoc:
   swagger-ui:
     path: /
-
-secret:
-  api:
-    key: XgjLuTOOn89cPqk
