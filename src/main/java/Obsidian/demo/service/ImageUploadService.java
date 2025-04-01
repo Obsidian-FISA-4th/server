@@ -15,8 +15,8 @@ import java.util.UUID;
 
 @Service
 public class ImageUploadService {
-    private final String homeDir = System.getProperty("user.home");
-    private final String imagePath = homeDir + "/note/images";
+    private final String homeDir = System.getProperty("user.home")+"/obsidian";
+    private final String imagePath = homeDir + "/images/";
 
     public List<String> uploadImageFiles(MultipartFile[] multipartFiles) throws IOException {
         List<String> fileNames = new ArrayList<>();
@@ -39,7 +39,7 @@ public class ImageUploadService {
                     Files.copy(inputStream, filePath);
                 }
 
-                fileNames.add(imagePath+"/"+fileName);
+                fileNames.add(imagePath+fileName);
             }
         }
 
