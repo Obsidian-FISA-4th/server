@@ -30,7 +30,7 @@ public class ApiKeyFilter implements Filter {
         }
 
         // Swagger 관련 요청은 필터 예외 처리
-        if (requestUri.startsWith("/swagger-ui") || requestUri.startsWith("/v3/api-docs")) {
+        if (requestUri.startsWith("/docs")||requestUri.startsWith("/swagger-ui") || requestUri.startsWith("/v3/api-docs")) {
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }

@@ -6,6 +6,8 @@ import Obsidian.demo.dto.PublishRequestDTO;
 import Obsidian.demo.dto.PublishResultDTO;
 import Obsidian.demo.dto.UnpublishRequestDTO;
 import Obsidian.demo.dto.UnpublishResultDTO;
+import Obsidian.demo.utils.FileSystemUtil;
+import lombok.RequiredArgsConstructor;
 
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
@@ -29,11 +31,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PublishService {
 
-	private final String homeDir = System.getProperty("user.home");
+	private final String homeDir = System.getProperty("user.home") + "/obsidian";
 	private final String vaultPath = homeDir + "/note/";
-	private final String publicPath = homeDir + "/note/public/";
+	private final String publicPath = homeDir + "/public/";
+
+	private final FileSystemUtil fileSystemUtil;
 
 	public PublishResultDTO publishMarkdownFiles(PublishRequestDTO request) {
 		List<String> filePaths = request.getFilePaths();
@@ -41,13 +46,18 @@ public class PublishService {
 			.map(this::processMarkdownFile)
 			.collect(Collectors.toList());
 
+		fileSystemUtil.updateFileTree();
 		return PublishResultDTO.builder()
 			.filePaths(publishedFiles)
 			.build();
+
 	}
+
 	public UnpublishResultDTO unPublishFiles(UnpublishRequestDTO request) {
 		List<String> deletedFiles = deleteFiles(request.getFilePaths());
 		deleteEmptyDirectories(request.getFilePaths());
+		fileSystemUtil.updateFileTree();
+
 		return new UnpublishResultDTO(deletedFiles);
 	}
 
@@ -79,7 +89,8 @@ public class PublishService {
 			File parentDir = new File(publicPath + filePath).getParentFile();
 
 			// 동일한 폴더를 중복 검사하지 않도록 Set 사용
-			if (parentDir != null && parentDir.exists() && parentDir.isDirectory() && checkedDirectories.add(parentDir)) {
+			if (parentDir != null && parentDir.exists() && parentDir.isDirectory() && checkedDirectories.add(
+				parentDir)) {
 				File[] remainingFiles = parentDir.listFiles();
 				if (remainingFiles == null || remainingFiles.length == 0) {
 					try {

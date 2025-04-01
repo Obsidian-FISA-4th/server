@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Getter
 public class MarkDownSaveRequestDTO {
 
-	private String filePath; // 파일의 전체 경로
 	private String fileName;
 	private String content;
 }
