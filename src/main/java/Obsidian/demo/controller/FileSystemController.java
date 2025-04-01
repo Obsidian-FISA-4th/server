@@ -40,6 +40,18 @@ public class FileSystemController {
         }
     }
 
+    @Operation(summary = "파일 내용 읽기", description = "지정된 경로의 파일 내용을 읽어옵니다.")
+    @GetMapping("/content")
+    public ResponseEntity<ApiResponse<String>> getFileContent(@RequestParam String path) {
+        try {
+            // 서비스 메서드 호출로 파일 내용 읽기
+            String content = fileSystemService.readFileContent(path);
+            return ResponseEntity.ok(ApiResponse.onSuccess(content));
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body(ApiResponse.onFailure("FILE_READ_ERROR", e.getMessage(), null));
+        }
+    }
+
 
     @Operation(summary = "파일 또는 폴더 생성", description = "지정된 경로에 파일 또는 폴더를 생성합니다.")
     @PostMapping("/create")
@@ -88,5 +100,7 @@ public class FileSystemController {
             return ResponseEntity.status(500).body(ApiResponse.onFailure("MARKDOWN_SAVE_ERROR", e.getMessage(), null));
         }
     }
+
+
 
 }

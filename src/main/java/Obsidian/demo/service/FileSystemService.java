@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 public class FileSystemService {
-
+// /home/obsidian
 	private final String rootPath = System.getProperty("user.home");
 	private final String vaultPath = rootPath + "/note/";
 
@@ -76,6 +76,12 @@ public class FileSystemService {
 	 */
 	public void createFileOrFolder(String relativePath, String type) throws IOException {
 		String fullPath = vaultPath + relativePath;
+
+		// 파일일 경우 .md 확장자 추가
+		if ("file".equalsIgnoreCase(type) && !fullPath.endsWith(".md")) {
+			fullPath += ".md";
+		}
+
 		Path path = Paths.get(fullPath);
 		System.out.println(fullPath);
 		if (Files.exists(path)) {
@@ -171,16 +177,40 @@ public class FileSystemService {
 
 	public void saveMarkdown(MarkDownSaveRequestDTO requestDTO) {
 		try {
-			Path storagePath = Paths.get(vaultPath);
-			if (!Files.exists(storagePath)) {
-				Files.createDirectories(storagePath);
+			// 파일 경로 계산
+			Path filePath = Paths.get(requestDTO.getFilePath()); // 전체 경로 포함
+
+			// .md 확장자 추가 (이미 확장자가 없는 경우)
+			if (!filePath.toString().endsWith(".md")) {
+				filePath = Paths.get(filePath.toString() + ".md");
 			}
 
-			Path filePath = storagePath.resolve(requestDTO.getFileName() + ".md");
-			Files.write(filePath, requestDTO.getContent().getBytes());
+			// 디렉토리 생성 (필요한 경우)
+			if (!Files.exists(filePath.getParent())) {
+				Files.createDirectories(filePath.getParent());
+			}
+
+			// 파일 저장 (덮어쓰기)
+			Files.write(filePath, requestDTO.getContent().getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+			log.info("Markdown 파일 저장 성공: {}", filePath);
 		} catch (IOException e) {
 			log.error("Markdown 저장 중 오류 발생: {}", e.getMessage());
 			throw new GeneralException(ErrorStatus.MARKDOWN_SAVE_ERROR);
 		}
+	}
+
+	public String readFileContent(String relativePath) throws IOException {
+		Path filePath = relativePath.startsWith(vaultPath)
+				? Paths.get(relativePath)
+				: Paths.get(vaultPath, relativePath);
+
+		// 파일 존재 여부 확인
+		if (!Files.exists(filePath)) {
+			throw new RuntimeException("파일을 찾을 수 없습니다: " + filePath);
+		}
+
+		// 파일 내용 읽기
+		return Files.readString(filePath);
 	}
 }
