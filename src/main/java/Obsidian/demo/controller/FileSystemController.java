@@ -42,7 +42,7 @@ public class FileSystemController {
 	@Operation(summary = "파일 또는 폴더 생성", description = "지정된 경로에 파일 또는 폴더를 생성합니다.")
 	@PostMapping("/create")
 	public ApiResponse<String> createFileOrFolder(@RequestParam("path") String path,
-		@RequestParam("type") String type) {
+												  @RequestParam("type") String type) {
 		try {
 			fileSystemService.createFileOrFolder(path, type);
 			return ApiResponse.onSuccess("파일 또는 폴더 생성 성공");
@@ -53,14 +53,14 @@ public class FileSystemController {
 
 	@Operation(summary = "파일 또는 폴더 이동", description = "파일 또는 폴더를 지정된 타겟 폴더로 이동합니다.")
 	@Parameters(
-		{@Parameter(name = "path", description = "옮길 파일,폴더 경로입력"),
-			@Parameter(name = "to", description = "target 폴더 입력 (주의! 폴더만 입력)" )}
+			{@Parameter(name = "path", description = "옮길 파일,폴더 경로입력"),
+					@Parameter(name = "to", description = "target 폴더 입력 (주의! 폴더만 입력)" )}
 	)
 	@PutMapping("/move")
 	public ApiResponse<String> moveFileOrFolder(
-		@RequestParam("path") String path,
+			@RequestParam("path") String path,
 
-		@RequestParam("to") String to) {
+			@RequestParam("to") String to) {
 		try {
 			fileSystemService.moveFileOrFolder(path, to);
 			return ApiResponse.onSuccess("파일 또는 폴더 이동 성공");
@@ -77,6 +77,18 @@ public class FileSystemController {
 			return ApiResponse.onSuccess("파일 또는 폴더 삭제 성공");
 		} catch (Exception e) {
 			return ApiResponse.onFailure("DELETE_ERROR", e.getMessage(), null);
+		}
+	}
+
+	@Operation(summary = "파일 내용 읽기", description = "지정된 경로의 파일 내용을 읽어옵니다.")
+	@GetMapping("/content")
+	public ResponseEntity<ApiResponse<String>> getFileContent(@RequestParam String path) {
+		try {
+			// 서비스 메서드 호출로 파일 내용 읽기
+			String content = fileSystemService.readFileContent(path);
+			return ResponseEntity.ok(ApiResponse.onSuccess(content));
+		} catch (IOException e) {
+			return ResponseEntity.status(500).body(ApiResponse.onFailure("FILE_READ_ERROR", e.getMessage(), null));
 		}
 	}
 
