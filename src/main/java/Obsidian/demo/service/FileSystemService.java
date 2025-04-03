@@ -137,26 +137,33 @@ public class FileSystemService {
 
 		fileSystemUtil.updateFileTree();
 	}
-
 	public void saveMarkdown(MarkDownSaveRequestDTO requestDTO) {
 		try {
-			// 파일 경로 계산
-			Path filePath = Paths.get(requestDTO.getFilePath()); // 전체 경로 포함
+			// 기존 파일 경로
+			Path oldFilePath = Paths.get(requestDTO.getFilePath());
+
+			// 새 파일 경로 (파일 이름 변경)
+			Path newFilePath = Paths.get(oldFilePath.getParent().toString(), requestDTO.getFileName());
 
 			// .md 확장자 추가 (이미 확장자가 없는 경우)
-			if (!filePath.toString().endsWith(".md")) {
-				filePath = Paths.get(filePath.toString() + ".md");
+			if (!newFilePath.toString().endsWith(".md")) {
+				newFilePath = Paths.get(newFilePath.toString() + ".md");
 			}
 
 			// 디렉토리 생성 (필요한 경우)
-			if (!Files.exists(filePath.getParent())) {
-				Files.createDirectories(filePath.getParent());
+			if (!Files.exists(newFilePath.getParent())) {
+				Files.createDirectories(newFilePath.getParent());
 			}
 
-			// 파일 저장 (덮어쓰기)
-			Files.write(filePath, requestDTO.getContent().getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+			// 파일 이동 (파일 이름 변경)
+			if (!oldFilePath.equals(newFilePath)) {
+				Files.move(oldFilePath, newFilePath, StandardCopyOption.REPLACE_EXISTING);
+			}
 
-			log.info("Markdown 파일 저장 성공: {}", filePath);
+			// 파일 내용 저장 (덮어쓰기)
+			Files.write(newFilePath, requestDTO.getContent().getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
+			log.info("Markdown 파일 저장 및 이름 변경 성공: {}", newFilePath);
 		} catch (IOException e) {
 			log.error("Markdown 저장 중 오류 발생: {}", e.getMessage());
 			throw new GeneralException(ErrorStatus.MARKDOWN_SAVE_ERROR);
