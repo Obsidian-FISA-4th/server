@@ -123,17 +123,19 @@ public class FileSystemUtil {
 
 		if (Files.exists(publicRoot)) {
 			try (Stream<Path> paths = Files.walk(publicRoot)) {
-				paths.filter(Files::isRegularFile)
-						.filter(path -> path.toString().endsWith(".html"))
-						.forEach(path -> {
-							System.out.println("path = " + path);
-							String fileNameWithoutExtension = getFileNameWithoutExtension(path.getFileName().toString());
-							publicHtmlFiles.add(fileNameWithoutExtension);
-						});
+				paths
+					.filter(Files::isRegularFile)
+					.filter(path -> path.toString().endsWith(".html"))
+					.forEach(path -> {
+						System.out.println("path = " + path);
+						String fileNameWithoutExtension = getFileNameWithoutExtension(path.getFileName().toString());
+						publicHtmlFiles.add(fileNameWithoutExtension);
+					});
 			} catch (IOException e) {
 				log.error("Public 폴더 조회 중 오류 발생: {}", e.getMessage());
 			}
 		}
+
 
 		markPublishedFiles(noteFiles, publicHtmlFiles);
 
