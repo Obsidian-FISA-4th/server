@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -138,16 +139,22 @@ public class FileSystemUtil {
 		}
 
 		Set<String> publicHtmlFiles = new HashSet<>();
+
 		if (Files.exists(publicRoot)) {
-			try (DirectoryStream<Path> publicStream = Files.newDirectoryStream(publicRoot, "*.html")) {
-				for (Path path : publicStream) {
-					String fileNameWithoutExtension = getFileNameWithoutExtension(path.getFileName().toString());
-					publicHtmlFiles.add(fileNameWithoutExtension);
-				}
+			try (Stream<Path> paths = Files.walk(publicRoot)) {
+				paths
+					.filter(Files::isRegularFile)
+					.filter(path -> path.toString().endsWith(".html"))
+					.forEach(path -> {
+						System.out.println("path = " + path);
+						String fileNameWithoutExtension = getFileNameWithoutExtension(path.getFileName().toString());
+						publicHtmlFiles.add(fileNameWithoutExtension);
+					});
 			} catch (IOException e) {
 				log.error("Public 폴더 조회 중 오류 발생: {}", e.getMessage());
 			}
 		}
+
 
 		markPublishedFiles(noteFiles, publicHtmlFiles);
 
