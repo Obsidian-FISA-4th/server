@@ -28,7 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class FileSystemUtil {
 
-	private static final String homeDir = System.getProperty("user.home") + "/obsidian";
+	// private static final String homeDir = System.getProperty("user.home") + "/obsidian";
+	private static final String homeDir = "/home/obsidian";
 	private static final String vaultPath = homeDir + "/note/";
 	private static final String publicPath = homeDir + "/public/";
 
