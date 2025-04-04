@@ -34,7 +34,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PublishService {
 
-	private final String homeDir = System.getProperty("user.home") + "/obsidian";
+	// private final String homeDir = System.getProperty("user.home") + "/obsidian";
+	private final String homeDir =  "/home/obsidian";
 	private final String vaultPath = homeDir + "/note/";
 	private final String publicPath = homeDir + "/public/";
 
