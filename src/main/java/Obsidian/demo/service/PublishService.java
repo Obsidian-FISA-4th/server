@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 public class PublishService {
 
 	// private final String homeDir = System.getProperty("user.home") + "/obsidian";
-	private final String homeDir =  "/home/obsidian";
+	private final String homeDir = "/home/obsidian";
 	private final String vaultPath = homeDir + "/note/";
 	private final String publicPath = homeDir + "/public/";
 
@@ -44,13 +44,13 @@ public class PublishService {
 	public PublishResultDTO publishMarkdownFiles(PublishRequestDTO request) {
 		List<String> filePaths = request.getFilePaths();
 		List<String> publishedFiles = filePaths.stream()
-			.map(this::processMarkdownFile)
-			.collect(Collectors.toList());
+				.map(this::processMarkdownFile)
+				.collect(Collectors.toList());
 
 		fileSystemUtil.updateFileTree();
 		return PublishResultDTO.builder()
-			.filePaths(publishedFiles)
-			.build();
+				.filePaths(publishedFiles)
+				.build();
 
 	}
 
@@ -91,7 +91,7 @@ public class PublishService {
 
 			// 동일한 폴더를 중복 검사하지 않도록 Set 사용
 			if (parentDir != null && parentDir.exists() && parentDir.isDirectory() && checkedDirectories.add(
-				parentDir)) {
+					parentDir)) {
 				File[] remainingFiles = parentDir.listFiles();
 				if (remainingFiles == null || remainingFiles.length == 0) {
 					try {
@@ -113,8 +113,8 @@ public class PublishService {
 		String fileName = new File(relativePath).getName().replace(".md", ".html");
 
 		File htmlFolder = (parentDir != null)
-			? new File(publicPath, parentDir)
-			: new File(publicPath);
+				? new File(publicPath, parentDir)
+				: new File(publicPath);
 		File htmlFile = new File(htmlFolder, fileName);
 
 		createDirectoryIfNotExists(htmlFolder);
@@ -154,14 +154,14 @@ public class PublishService {
 			HtmlRenderer renderer = HtmlRenderer.builder().build();
 			Node document = parser.parse(markdown);
 			return "<!DOCTYPE html>\n" +
-				"<html lang=\"ko\">\n" +
-				"<head>\n" +
-				"    <meta charset=\"UTF-8\">\n" +
-				"    <title>Markdown Render</title>\n" +
-				"</head>\n" +
-				"<body>\n" +
-				renderer.render(document) +
-				"\n</body>\n</html>";
+					"<html lang=\"ko\">\n" +
+					"<head>\n" +
+					"    <meta charset=\"UTF-8\">\n" +
+					"    <title>Markdown Render</title>\n" +
+					"</head>\n" +
+					"<body>\n" +
+					renderer.render(document) +
+					"\n</body>\n</html>";
 		} catch (Exception e) {
 			throw new GeneralException(ErrorStatus.MARKDOWN_CONVERT_ERROR);
 		}

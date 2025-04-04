@@ -1,0 +1,14 @@
+spring:
+  redis:
+    host: redis
+    port: 6379
+springdoc:
+  swagger-ui:
+    path: /api/docs
+    config-url: /api/v3/api-docs/swagger-config
+    url: /api/v3/api-docs/
+
+
+secret:
+  api:
+    key: ${KEY}

@@ -28,7 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class FileSystemUtil {
 
-	// private static final String homeDir = System.getProperty("user.home") + "/obsidian";
+	// private static final String homeDir = System.getProperty("user.home") +
+	// "/obsidian";
 	private static final String homeDir = "/home/obsidian";
 	private static final String vaultPath = homeDir + "/note/";
 	private static final String publicPath = homeDir + "/public/";
@@ -77,13 +78,22 @@ public class FileSystemUtil {
 	}
 
 	public static void markPublishedFiles(List<FileNodeDto> files, Set<String> publicHtmlFiles) {
+		Path vaultRoot = Paths.get("/home/obsidian/note"); // vaultPath
+
 		for (FileNodeDto file : files) {
 			if (!file.isFolder() && file.getName().endsWith(".md")) {
-				String fileNameWithoutExtension = getFileNameWithoutExtension(file.getName());
-				if (publicHtmlFiles.contains(fileNameWithoutExtension)) {
-					file.setPublish(true);
+				Path filePath = Paths.get(file.getPath());
+
+				if (filePath.startsWith(vaultRoot)) {
+					Path relativePath = vaultRoot.relativize(filePath); // 안전하게 상대 경로 구함
+					String relativePathStr = relativePath.toString();
+
+					if (publicHtmlFiles.contains(relativePathStr)) {
+						file.setPublish(true);
+					}
 				}
 			}
+
 			if (file.isFolder()) {
 				markPublishedFiles(file.getChildren(), publicHtmlFiles);
 			}
@@ -125,18 +135,31 @@ public class FileSystemUtil {
 		if (Files.exists(publicRoot)) {
 			try (Stream<Path> paths = Files.walk(publicRoot)) {
 				paths
-					.filter(Files::isRegularFile)
-					.filter(path -> path.toString().endsWith(".html"))
-					.forEach(path -> {
-						System.out.println("path = " + path);
-						String fileNameWithoutExtension = getFileNameWithoutExtension(path.getFileName().toString());
-						publicHtmlFiles.add(fileNameWithoutExtension);
-					});
+						.filter(Files::isRegularFile)
+						.filter(path -> path.toString().endsWith(".html"))
+						.forEach(path -> {
+							Path relative = publicRoot.relativize(path);
+							String mdPath = relative.toString().replaceAll("\\.html$", ".md");
+							publicHtmlFiles.add(mdPath);
+						});
 			} catch (IOException e) {
 				log.error("Public 폴더 조회 중 오류 발생: {}", e.getMessage());
 			}
 		}
-
+		if (Files.exists(publicRoot)) {
+			try (Stream<Path> paths = Files.walk(publicRoot)) {
+				paths
+						.filter(Files::isRegularFile)
+						.filter(path -> path.toString().endsWith(".html"))
+						.forEach(path -> {
+							Path relative = publicRoot.relativize(path);
+							String mdPath = relative.toString().replaceAll("\\.html$", ".md");
+							publicHtmlFiles.add(mdPath);
+						});
+			} catch (IOException e) {
+				log.error("Public 폴더 조회 중 오류 발생: {}", e.getMessage());
+			}
+		}
 
 		markPublishedFiles(noteFiles, publicHtmlFiles);
 
