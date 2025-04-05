@@ -34,8 +34,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PublishService {
 
-	// private final String homeDir = System.getProperty("user.home") + "/obsidian";
-	private final String homeDir =  "/home/obsidian";
+	private final String homeDir = System.getProperty("user.home") + "/obsidian";
+	// private final String homeDir =  "/home/obsidian";
 	private final String vaultPath = homeDir + "/note/";
 	private final String publicPath = homeDir + "/public/";
 
@@ -55,27 +55,31 @@ public class PublishService {
 	}
 
 	public UnpublishResultDTO unPublishFiles(UnpublishRequestDTO request) {
-		List<String> deletedFiles = deleteFiles(request.getFilePaths());
-		deleteEmptyDirectories(request.getFilePaths());
+		List<String> deletedFiles = new ArrayList<>();
+		List<String> failedFiles = new ArrayList<>();
+
+		deleteFiles(request.getFilePaths(), deletedFiles, failedFiles);
+		deleteEmptyDirectories(deletedFiles);
 		fileSystemUtil.updateFileTree();
 
-		return new UnpublishResultDTO(deletedFiles);
+		return new UnpublishResultDTO(deletedFiles,failedFiles);
 	}
 
 	// 개별 파일 삭제
-	private List<String> deleteFiles(List<String> filePaths) {
-		List<String> deletedFiles = new ArrayList<>();
-
+	private List<String> deleteFiles(List<String> filePaths, List<String> deletedFiles, List<String> failedFiles) {
 		for (String filePath : filePaths) {
 			File file = new File(publicPath + filePath);
 			if (file.exists() && file.isFile()) {
 				try {
 					System.out.println("Deleted File: " + file.getName());
 					Files.delete(file.toPath());
-					deletedFiles.add(file.getName());
+					deletedFiles.add(filePath);  // 전체 경로 포함
 				} catch (Exception e) {
-					throw new GeneralException(ErrorStatus.PUBLIC_DIRECTORY_CLEAR_ERROR);
+					failedFiles.add(filePath);
 				}
+			} else {
+				// 파일이 존재하지 않으면 실패로 처리
+				failedFiles.add(filePath);
 			}
 		}
 
@@ -175,29 +179,5 @@ public class PublishService {
 		}
 	}
 
-	private boolean clearPublicDirectory() {
-		Path publicDir = Paths.get(publicPath);
 
-		if (Files.exists(publicDir)) {
-			try {
-				Files.walkFileTree(publicDir, new SimpleFileVisitor<Path>() {
-					@Override
-					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-						Files.delete(file); // 파일 삭제
-						return FileVisitResult.CONTINUE;
-					}
-
-					@Override
-					public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-						Files.delete(dir); // 디렉토리 삭제
-						return FileVisitResult.CONTINUE;
-					}
-				});
-			} catch (IOException e) {
-				throw new GeneralException(ErrorStatus.PUBLIC_DIRECTORY_CLEAR_ERROR);
-			}
-		}
-
-		return publicDir.toFile().mkdirs(); // 삭제 후 다시 폴더 생성
-	}
 }
