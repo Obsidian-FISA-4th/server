@@ -15,7 +15,8 @@ import java.util.UUID;
 
 @Service
 public class ImageUploadService {
-    private final String homeDir = System.getProperty("user.home")+"/obsidian";
+    private final String homeDir = "/home/obsidian";
+    // private final String homeDir = System.getProperty("user.home")+"/obsidian";
     private final String imagePath = homeDir + "/images/";
 
     public List<String> uploadImageFiles(MultipartFile[] multipartFiles) throws IOException {
