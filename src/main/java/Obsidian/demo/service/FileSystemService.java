@@ -142,6 +142,10 @@ public class FileSystemService {
 		try {
 			Path filePath = Paths.get(requestDTO.getFilePath());
 
+			// 파일 이름 추출
+			String fileName = filePath.getFileName().toString();
+			log.info("업데이트할 파일 이름: {}", fileName);
+
 			// 파일 존재 여부 확인
 			if (!Files.exists(filePath)) {
 				throw new RuntimeException("파일이 존재하지 않습니다: " + filePath);
