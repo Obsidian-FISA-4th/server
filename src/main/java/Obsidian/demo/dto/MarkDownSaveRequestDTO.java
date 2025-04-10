@@ -12,6 +12,5 @@ import lombok.NoArgsConstructor;
 public class MarkDownSaveRequestDTO {
 
 	private String filePath;
-	private String fileName;
 	private String content;
 }
