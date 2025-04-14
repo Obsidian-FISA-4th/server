@@ -25,7 +25,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FileSystemService {
 
-	private final String rootPath = System.getProperty("user.home") + "/obsidian";
+	// private final String rootPath = System.getProperty("user.home") + "/obsidian";
+	private final String rootPath =  "/home/obsidian";
 	private final String vaultPath = rootPath + "/note/";
 	private final String publicPath = rootPath + "/public/";
 
