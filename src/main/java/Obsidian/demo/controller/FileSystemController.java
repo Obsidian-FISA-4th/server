@@ -92,14 +92,14 @@ public class FileSystemController {
 		}
 	}
 
-	@Operation(summary = "마크다운 저장", description = "마크다운 파일을 저장합니다.")
-	@PostMapping("/save")
-	public ResponseEntity<ApiResponse<String>> saveMarkdown(@RequestBody MarkDownSaveRequestDTO requestDTO) {
+	@Operation(summary = "마크다운 내용 업데이트", description = "기존 마크다운 파일의 내용을 업데이트합니다.")
+	@PutMapping("/update")
+	public ResponseEntity<ApiResponse<String>> updateMarkdown(@RequestBody MarkDownSaveRequestDTO requestDTO) {
 		try {
-			fileSystemService.saveMarkdown(requestDTO);
-			return ResponseEntity.ok(ApiResponse.onSuccess("마크다운 파일 저장 성공"));
+			fileSystemService.updateMarkdown(requestDTO);
+			return ResponseEntity.ok(ApiResponse.onSuccess("마크다운 파일 내용 업데이트 성공"));
 		} catch (Exception e) {
-			return ResponseEntity.status(500).body(ApiResponse.onFailure("MARKDOWN_SAVE_ERROR", e.getMessage(), null));
+			return ResponseEntity.status(500).body(ApiResponse.onFailure("MARKDOWN_UPDATE_ERROR", e.getMessage(), null));
 		}
 	}
 
