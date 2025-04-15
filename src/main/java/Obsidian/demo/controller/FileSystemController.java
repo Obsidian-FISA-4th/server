@@ -103,4 +103,16 @@ public class FileSystemController {
 		}
 	}
 
+	@Operation(summary = "파일 또는 폴더 이름 변경", description = "지정된 파일 또는 폴더의 이름을 변경합니다.")
+	@PutMapping("/rename")
+	public ApiResponse<String> renameFileOrFolder(
+			@RequestParam("path") String path,
+			@RequestParam("newName") String newName) {
+		try {
+			fileSystemService.renameFile(path, newName);
+			return ApiResponse.onSuccess("파일 또는 폴더 이름 변경 성공");
+		} catch (Exception e) {
+			return ApiResponse.onFailure("RENAME_ERROR", e.getMessage(), null);
+		}
+	}
 }

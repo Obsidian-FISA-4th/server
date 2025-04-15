@@ -175,4 +175,22 @@ public class FileSystemService {
 		// 파일 내용 읽기
 		return Files.readString(filePath);
 	}
+
+	public void renameFile(String path, String newName) throws IOException {
+		Path sourcePath = Paths.get(vaultPath + path);
+
+		if (!Files.exists(sourcePath)) {
+			throw new RuntimeException("이름을 변경할 파일이 존재하지 않음: " + path);
+		}
+
+		Path parentPath = sourcePath.getParent();
+		Path renamedPath = parentPath.resolve(newName);
+
+		Files.move(sourcePath, renamedPath, StandardCopyOption.REPLACE_EXISTING);
+		log.info("파일 이름 변경 완료: {} → {}", sourcePath, renamedPath);
+
+		fileSystemUtil.updateFileTree();
+	}
 }
+
+
