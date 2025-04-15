@@ -158,14 +158,17 @@ public class PublishService {
 			HtmlRenderer renderer = HtmlRenderer.builder().build();
 			Node document = parser.parse(markdown);
 			return "<!DOCTYPE html>\n" +
-				"<html lang=\"ko\">\n" +
-				"<head>\n" +
-				"    <meta charset=\"UTF-8\">\n" +
-				"    <title>Markdown Render</title>\n" +
-				"</head>\n" +
-				"<body>\n" +
-				renderer.render(document) +
-				"\n</body>\n</html>";
+					"<html lang=\"ko\">\n" +
+					"<head>\n" +
+					"    <meta charset=\"UTF-8\">\n" +
+					"    <title>Markdown Render</title>\n" +
+					"    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css\">\n" +
+					"    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js\"></script>\n" +
+					"    <script>hljs.highlightAll();</script>\n" +
+					"</head>\n" +
+					"<body>\n" +
+					renderer.render(document) +
+					"\n</body>\n</html>";
 		} catch (Exception e) {
 			throw new GeneralException(ErrorStatus.MARKDOWN_CONVERT_ERROR);
 		}
