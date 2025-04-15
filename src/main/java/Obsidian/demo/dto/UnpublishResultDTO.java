@@ -15,4 +15,7 @@ public class UnpublishResultDTO {
 	public UnpublishResultDTO(List<String> filePaths) {
 		this.filePaths = filePaths;
 	}
+
+	public UnpublishResultDTO(List<String> deletedFiles, List<String> failedFiles) {
+	}
 }
