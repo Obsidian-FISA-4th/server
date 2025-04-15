@@ -2,20 +2,17 @@ package Obsidian.demo.dto;
 
 import java.util.List;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class UnpublishResultDTO {
-	private List<String> filePaths;
+	private List<String> deletedFiles;
+	private List<String> failedFiles;
 
-	@Builder
-	public UnpublishResultDTO(List<String> filePaths) {
-		this.filePaths = filePaths;
-	}
-
-	public UnpublishResultDTO(List<String> deletedFiles, List<String> failedFiles) {
-	}
 }
