@@ -138,35 +138,26 @@ public class FileSystemService {
 
 		fileSystemUtil.updateFileTree();
 	}
-	public void saveMarkdown(MarkDownSaveRequestDTO requestDTO) {
+
+	public void updateMarkdown(MarkDownSaveRequestDTO requestDTO) {
 		try {
-			// 기존 파일 경로
-			Path oldFilePath = Paths.get(requestDTO.getFilePath());
+			Path filePath = Paths.get(requestDTO.getFilePath());
 
-			// 새 파일 경로 (파일 이름 변경)
-			Path newFilePath = Paths.get(oldFilePath.getParent().toString(), requestDTO.getFileName());
+			// 파일 이름 추출
+			String fileName = filePath.getFileName().toString();
+			log.info("업데이트할 파일 이름: {}", fileName);
 
-			// .md 확장자 추가 (이미 확장자가 없는 경우)
-			if (!newFilePath.toString().endsWith(".md")) {
-				newFilePath = Paths.get(newFilePath.toString() + ".md");
+			// 파일 존재 여부 확인
+			if (!Files.exists(filePath)) {
+				throw new RuntimeException("파일이 존재하지 않습니다: " + filePath);
 			}
 
-			// 디렉토리 생성 (필요한 경우)
-			if (!Files.exists(newFilePath.getParent())) {
-				Files.createDirectories(newFilePath.getParent());
-			}
+			// 파일 내용 업데이트
+			Files.write(filePath, requestDTO.getContent().getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
 
-			// 파일 이동 (파일 이름 변경)
-			if (!oldFilePath.equals(newFilePath)) {
-				Files.move(oldFilePath, newFilePath, StandardCopyOption.REPLACE_EXISTING);
-			}
-
-			// 파일 내용 저장 (덮어쓰기)
-			Files.write(newFilePath, requestDTO.getContent().getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-
-			log.info("Markdown 파일 저장 및 이름 변경 성공: {}", newFilePath);
+			log.info("Markdown 파일 내용 업데이트 성공: {}", filePath);
 		} catch (IOException e) {
-			log.error("Markdown 저장 중 오류 발생: {}", e.getMessage());
+			log.error("Markdown 내용 업데이트 중 오류 발생: {}", e.getMessage());
 			throw new GeneralException(ErrorStatus.MARKDOWN_SAVE_ERROR);
 		}
 	}
@@ -184,4 +175,22 @@ public class FileSystemService {
 		// 파일 내용 읽기
 		return Files.readString(filePath);
 	}
+
+	public void renameFile(String path, String newName) throws IOException {
+		Path sourcePath = Paths.get(vaultPath + path);
+
+		if (!Files.exists(sourcePath)) {
+			throw new RuntimeException("이름을 변경할 파일이 존재하지 않음: " + path);
+		}
+
+		Path parentPath = sourcePath.getParent();
+		Path renamedPath = parentPath.resolve(newName);
+
+		Files.move(sourcePath, renamedPath, StandardCopyOption.REPLACE_EXISTING);
+		log.info("파일 이름 변경 완료: {} → {}", sourcePath, renamedPath);
+
+		fileSystemUtil.updateFileTree();
+	}
 }
+
+
