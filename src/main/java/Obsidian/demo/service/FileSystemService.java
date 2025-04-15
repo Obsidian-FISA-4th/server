@@ -25,7 +25,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FileSystemService {
 
-	private final String rootPath = System.getProperty("user.home") + "/obsidian";
+	// private final String rootPath = System.getProperty("user.home") + "/obsidian";
+	private final String rootPath =  "/home/obsidian";
 	private final String vaultPath = rootPath + "/note/";
 	private final String publicPath = rootPath + "/public/";
 
@@ -138,27 +139,25 @@ public class FileSystemService {
 		fileSystemUtil.updateFileTree();
 	}
 
-	public void saveMarkdown(MarkDownSaveRequestDTO requestDTO) {
+	public void updateMarkdown(MarkDownSaveRequestDTO requestDTO) {
 		try {
-			// 파일 경로 계산
-			Path filePath = Paths.get(requestDTO.getFilePath()); // 전체 경로 포함
+			Path filePath = Paths.get(requestDTO.getFilePath());
 
-			// .md 확장자 추가 (이미 확장자가 없는 경우)
-			if (!filePath.toString().endsWith(".md")) {
-				filePath = Paths.get(filePath.toString() + ".md");
+			// 파일 이름 추출
+			String fileName = filePath.getFileName().toString();
+			log.info("업데이트할 파일 이름: {}", fileName);
+
+			// 파일 존재 여부 확인
+			if (!Files.exists(filePath)) {
+				throw new RuntimeException("파일이 존재하지 않습니다: " + filePath);
 			}
 
-			// 디렉토리 생성 (필요한 경우)
-			if (!Files.exists(filePath.getParent())) {
-				Files.createDirectories(filePath.getParent());
-			}
+			// 파일 내용 업데이트
+			Files.write(filePath, requestDTO.getContent().getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
 
-			// 파일 저장 (덮어쓰기)
-			Files.write(filePath, requestDTO.getContent().getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-
-			log.info("Markdown 파일 저장 성공: {}", filePath);
+			log.info("Markdown 파일 내용 업데이트 성공: {}", filePath);
 		} catch (IOException e) {
-			log.error("Markdown 저장 중 오류 발생: {}", e.getMessage());
+			log.error("Markdown 내용 업데이트 중 오류 발생: {}", e.getMessage());
 			throw new GeneralException(ErrorStatus.MARKDOWN_SAVE_ERROR);
 		}
 	}
@@ -192,5 +191,6 @@ public class FileSystemService {
 
 		fileSystemUtil.updateFileTree();
 	}
-
 }
+
+
