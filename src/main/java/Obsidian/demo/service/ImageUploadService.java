@@ -13,37 +13,57 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import Obsidian.demo.config.CustomProperties;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class ImageUploadService {
-    private final String homeDir = "/home/obsidian";
-    // private final String homeDir = System.getProperty("user.home")+"/obsidian";
-    private final String imagePath = homeDir + "/images/";
+	private final CustomProperties customProperties;
 
-    public List<String> uploadImageFiles(MultipartFile[] multipartFiles) throws IOException {
-        List<String> fileNames = new ArrayList<>();
+	private String rootPath;
+	private String imagePath;
 
-        // 저장 폴더가 없으면 생성
-        File directory = new File(imagePath);
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
+	@PostConstruct
+	private void initPaths() {
 
-        for (MultipartFile file : multipartFiles) {
-            if (!file.isEmpty()) {
-                // 파일 이름에 UUID 추가
-                String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-                Path filePath = Paths.get(imagePath, fileName);
+		this.rootPath = customProperties.getMode().equals("prod")
+			? "/home/obsidian"
+			: System.getProperty("user.home") + "/obsidian";
+		System.out.println("customProperties.getMode() = " + customProperties.getMode());
+		this.imagePath = rootPath + "/images/";
 
-                // 파일을 InputStream으로 읽어서 저장
-                try (InputStream inputStream = file.getInputStream()) {
-                    // 파일 덮어쓰기
-                    Files.copy(inputStream, filePath);
-                }
+		log.info("FileSystem 초기화 완료 - rootPath: {}", rootPath);
+	}
 
-                fileNames.add(imagePath+fileName);
-            }
-        }
+	public List<String> uploadImageFiles(MultipartFile[] multipartFiles) throws IOException {
+		List<String> fileNames = new ArrayList<>();
 
-        return fileNames;
-    }
+		// 저장 폴더가 없으면 생성
+		File directory = new File(imagePath);
+		if (!directory.exists()) {
+			directory.mkdirs();
+		}
+
+		for (MultipartFile file : multipartFiles) {
+			if (!file.isEmpty()) {
+				// 파일 이름에 UUID 추가
+				String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+				Path filePath = Paths.get(imagePath, fileName);
+
+				// 파일을 InputStream으로 읽어서 저장
+				try (InputStream inputStream = file.getInputStream()) {
+					// 파일 덮어쓰기
+					Files.copy(inputStream, filePath);
+				}
+
+				fileNames.add(imagePath + fileName);
+			}
+		}
+
+		return fileNames;
+	}
 }
