@@ -1,6 +1,5 @@
 package Obsidian.demo.utils;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -19,7 +18,9 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import Obsidian.demo.config.CustomProperties;
 import Obsidian.demo.dto.FileNodeDto;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,20 +29,35 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class FileSystemUtil {
 
-	private static final String homeDir = System.getProperty("user.home") + "/obsidian";
-	// private static final String homeDir = "/home/obsidian";
-	private static final String vaultPath = homeDir + "/note/";
-	private static final String publicPath = homeDir + "/public/";
+	private final CustomProperties customProperties;
+
+	private String rootPath;
+	private String vaultPath;
+	private String publicPath;
+
+	@PostConstruct
+	private void initPaths() {
+		// Spring이 빈 주입 완료한 이후에 rootPath 설정
+
+		this.rootPath = customProperties.getMode().equals("prod")
+			? "/home/obsidian"
+			: System.getProperty("user.home") + "/obsidian";
+		System.out.println("customProperties.getMode() = " + customProperties.getMode());
+		this.vaultPath = rootPath + "/note/";
+		this.publicPath = rootPath + "/public/";
+
+		log.info("FileSystem 초기화 완료 - rootPath: {}", rootPath);
+	}
 
 	private final RedisTemplate<String, Object> redisTemplate;
 
-	public static Path findPublishedHtmlFile(String relativePath) {
-		String htmlFilePath = publicPath + relativePath.replaceAll("\\.md$", ".html");
-		Path htmlPath = Paths.get(htmlFilePath);
-		return Files.exists(htmlPath) ? htmlPath : null;
+	public Path findPublishedFile(String relativePath) {
+		String FilePath = publicPath + relativePath;
+		Path mdPath = Paths.get(FilePath);
+		return Files.exists(mdPath) ? mdPath : null;
 	}
 
-	public static void deleteRecursively(Path path) throws IOException {
+	public void deleteRecursively(Path path) throws IOException {
 		if (!Files.exists(path)) {
 			return;
 		}
@@ -62,7 +78,7 @@ public class FileSystemUtil {
 		}
 	}
 
-	public static FileNodeDto buildFileNode(Path path) throws IOException {
+	public FileNodeDto buildFileNode(Path path) throws IOException {
 		boolean isFolder = Files.isDirectory(path);
 		List<FileNodeDto> children = new ArrayList<>();
 
@@ -76,39 +92,29 @@ public class FileSystemUtil {
 		return new FileNodeDto(path.getFileName().toString(), isFolder, false, path.toString(), children);
 	}
 
-	public static void markPublishedFiles(List<FileNodeDto> files, Set<String> publicHtmlFiles) {
+	public void markPublishedFiles(List<FileNodeDto> files, Set<String> publicHtmlFiles) {
 		Path vaultRoot = Paths.get(vaultPath); // vaultPath
 
 		for (FileNodeDto file : files) {
 			if (!file.isFolder() && file.getName().endsWith(".md")) {
 				Path filePath = Paths.get(file.getPath());
-
 				if (filePath.startsWith(vaultRoot)) {
-					Path relativePath = vaultRoot.relativize(filePath); // 안전하게 상대 경로 구함
-					String relativePathStr = relativePath.toString();
-
+					String relativePathStr = vaultRoot.relativize(filePath).toString();
 					if (publicHtmlFiles.contains(relativePathStr)) {
 						file.setPublish(true);
 					}
 				}
 			}
-
 			if (file.isFolder()) {
 				markPublishedFiles(file.getChildren(), publicHtmlFiles);
 			}
 		}
 	}
 
-	public static String getFileNameWithoutExtension(String fileName) {
-		int lastDotIndex = fileName.lastIndexOf('.');
-		return (lastDotIndex != -1) ? fileName.substring(0, lastDotIndex) : fileName;
-	}
-
 	@CacheEvict(value = "fileTreeCache", key = "'fileTree'")
 	public List<FileNodeDto> updateFileTree() {
 		Path root = Paths.get(vaultPath);
 		Path publicRoot = Paths.get(publicPath);
-		System.out.println("UpdateCache");
 		if (!Files.exists(root)) {
 			try {
 				Files.createDirectories(root);
@@ -128,29 +134,40 @@ public class FileSystemUtil {
 			log.error("파일 시스템 조회 중 오류 발생: {}", e.getMessage());
 			return Collections.emptyList();
 		}
-
-		Set<String> publicHtmlFiles = new HashSet<>();
+		sortFileNodes(noteFiles);
+		Set<String> publicFiles = new HashSet<>();
 
 		if (Files.exists(publicRoot)) {
 			try (Stream<Path> paths = Files.walk(publicRoot)) {
 				paths
 					.filter(Files::isRegularFile)
-					.filter(path -> path.toString().endsWith(".html"))
+					.filter(path -> path.toString().endsWith(".md"))
 					.forEach(path -> {
 						Path relative = publicRoot.relativize(path);
-						String mdPath = relative.toString().replaceAll("\\.html$", ".md");
-						publicHtmlFiles.add(mdPath);
+						publicFiles.add(relative.toString());
 					});
 			} catch (IOException e) {
 				log.error("Public 폴더 조회 중 오류 발생: {}", e.getMessage());
 			}
 		}
 
-		markPublishedFiles(noteFiles, publicHtmlFiles);
+		markPublishedFiles(noteFiles, publicFiles);
 
 		redisTemplate.opsForValue().set("fileTreeCache::fileTree", noteFiles, 300, TimeUnit.SECONDS);
 		log.info("[파일 트리 업데이트] 디스크에서 조회 후 Redis에 저장");
 
 		return noteFiles;
+	}
+	private void sortFileNodes(List<FileNodeDto> nodes) {
+		nodes.sort(Comparator
+			.comparing(FileNodeDto::isFolder).reversed()  // 폴더 먼저
+			.thenComparing(FileNodeDto::getName, String.CASE_INSENSITIVE_ORDER)  // 이름순 오름차순
+		);
+
+		for (FileNodeDto node : nodes) {
+			if (node.getChildren() != null && !node.getChildren().isEmpty()) {
+				sortFileNodes(node.getChildren());  // 자식들도 재귀적으로 정렬
+			}
+		}
 	}
 }

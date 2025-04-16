@@ -2,12 +2,15 @@ package Obsidian.demo.service;
 
 import Obsidian.demo.apiPayload.code.status.ErrorStatus;
 import Obsidian.demo.apiPayload.exception.GeneralException;
+import Obsidian.demo.config.CustomProperties;
 import Obsidian.demo.dto.PublishRequestDTO;
 import Obsidian.demo.dto.PublishResultDTO;
 import Obsidian.demo.dto.UnpublishRequestDTO;
 import Obsidian.demo.dto.UnpublishResultDTO;
 import Obsidian.demo.utils.FileSystemUtil;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
@@ -23,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -32,26 +36,43 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PublishService {
 
-	private final String homeDir = System.getProperty("user.home") + "/obsidian";
-	// private final String homeDir =  "/home/obsidian";
-	private final String vaultPath = homeDir + "/note/";
-	private final String publicPath = homeDir + "/public/";
-
 	private final FileSystemUtil fileSystemUtil;
+	private final CustomProperties customProperties;
+
+	private String rootPath;
+	private String vaultPath;
+	private String publicPath;
+
+	@PostConstruct
+	private void initPaths() {
+		// Spring이 빈 주입 완료한 이후에 rootPath 설정
+
+		this.rootPath = customProperties.getMode().equals("prod")
+			? "/home/obsidian"
+			: System.getProperty("user.home") + "/obsidian";
+		System.out.println("customProperties.getMode() = " + customProperties.getMode());
+		this.vaultPath = rootPath + "/note/";
+		this.publicPath = rootPath + "/public/";
+
+		log.info("FileSystem 초기화 완료 - rootPath: {}", rootPath);
+	}
 
 	public PublishResultDTO publishMarkdownFiles(PublishRequestDTO request) {
 		List<String> filePaths = request.getFilePaths();
+
+		// 변경된 copyMarkdownFile() 사용
 		List<String> publishedFiles = filePaths.stream()
-			.map(this::processMarkdownFile)
+			.map(this::copyMarkdownFile)  // 기존: processMarkdownFile → 변경됨
 			.collect(Collectors.toList());
 
 		fileSystemUtil.updateFileTree();
+
 		return PublishResultDTO.builder()
 			.filePaths(publishedFiles)
 			.build();
-
 	}
 
 	public UnpublishResultDTO unPublishFiles(UnpublishRequestDTO request) {
@@ -62,7 +83,7 @@ public class PublishService {
 		deleteEmptyDirectories(deletedFiles);
 		fileSystemUtil.updateFileTree();
 
-		return new UnpublishResultDTO(deletedFiles,failedFiles);
+		return new UnpublishResultDTO(deletedFiles, failedFiles);
 	}
 
 	// 개별 파일 삭제
@@ -109,25 +130,30 @@ public class PublishService {
 		}
 	}
 
-	private String processMarkdownFile(String filePath) {
+	private String copyMarkdownFile(String filePath) {
 		File markdownFile = validateFileExistence(filePath);
 
+		// 퍼블릭 경로에서 사용할 상대 경로 추출
 		String relativePath = filePath.replaceFirst("^" + vaultPath, "");
 		String parentDir = new File(relativePath).getParent();
-		String fileName = new File(relativePath).getName().replace(".md", ".html");
+		String fileName = new File(relativePath).getName(); // .md 유지
 
-		File htmlFolder = (parentDir != null)
+		// 대상 디렉토리 + 파일 경로 설정
+		File targetFolder = (parentDir != null)
 			? new File(publicPath, parentDir)
 			: new File(publicPath);
-		File htmlFile = new File(htmlFolder, fileName);
+		File targetFile = new File(targetFolder, fileName);
 
-		createDirectoryIfNotExists(htmlFolder);
+		// 디렉토리 없으면 생성
+		createDirectoryIfNotExists(targetFolder);
 
-		String markdownContent = readMarkdownFile(markdownFile);
-		String htmlContent = convertMarkdownToHtml(markdownContent);
-		saveHtmlFile(htmlFile, htmlContent);
-
-		return htmlFile.getPath();
+		// 파일 복사 (덮어쓰기)
+		try {
+			Files.copy(markdownFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e) {
+			throw new RuntimeException("마크다운 파일 복사 중 오류 발생", e);
+		}
+		return targetFile.getPath();
 	}
 
 	private File validateFileExistence(String filePath) {
@@ -143,44 +169,5 @@ public class PublishService {
 			throw new GeneralException(ErrorStatus.DIRECTORY_CREATE_ERROR);
 		}
 	}
-
-	private String readMarkdownFile(File markdownFile) {
-		try {
-			return Files.readString(markdownFile.toPath(), StandardCharsets.UTF_8);
-		} catch (IOException e) {
-			throw new GeneralException(ErrorStatus.MARKDOWN_READ_ERROR);
-		}
-	}
-
-	private String convertMarkdownToHtml(String markdown) {
-		try {
-			Parser parser = Parser.builder().build();
-			HtmlRenderer renderer = HtmlRenderer.builder().build();
-			Node document = parser.parse(markdown);
-			return "<!DOCTYPE html>\n" +
-					"<html lang=\"ko\">\n" +
-					"<head>\n" +
-					"    <meta charset=\"UTF-8\">\n" +
-					"    <title>Markdown Render</title>\n" +
-					"    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css\">\n" +
-					"    <script src=\"https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js\"></script>\n" +
-					"    <script>hljs.highlightAll();</script>\n" +
-					"</head>\n" +
-					"<body>\n" +
-					renderer.render(document) +
-					"\n</body>\n</html>";
-		} catch (Exception e) {
-			throw new GeneralException(ErrorStatus.MARKDOWN_CONVERT_ERROR);
-		}
-	}
-
-	private void saveHtmlFile(File htmlFile, String htmlContent) {
-		try {
-			Files.writeString(htmlFile.toPath(), htmlContent, StandardCharsets.UTF_8);
-		} catch (IOException e) {
-			throw new GeneralException(ErrorStatus.HTML_SAVE_ERROR);
-		}
-	}
-
 
 }
