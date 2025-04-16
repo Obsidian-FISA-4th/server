@@ -42,7 +42,7 @@ public class FileSystemController {
 	@Operation(summary = "파일 또는 폴더 생성", description = "지정된 경로에 파일 또는 폴더를 생성합니다.")
 	@PostMapping("/create")
 	public ApiResponse<String> createFileOrFolder(@RequestParam("path") String path,
-												  @RequestParam("type") String type) {
+		@RequestParam("type") String type) {
 		try {
 			fileSystemService.createFileOrFolder(path, type);
 			return ApiResponse.onSuccess("파일 또는 폴더 생성 성공");
@@ -53,14 +53,14 @@ public class FileSystemController {
 
 	@Operation(summary = "파일 또는 폴더 이동", description = "파일 또는 폴더를 지정된 타겟 폴더로 이동합니다.")
 	@Parameters(
-			{@Parameter(name = "path", description = "옮길 파일,폴더 경로입력"),
-					@Parameter(name = "to", description = "target 폴더 입력 (주의! 폴더만 입력)" )}
+		{@Parameter(name = "path", description = "옮길 파일,폴더 경로입력"),
+			@Parameter(name = "to", description = "target 폴더 입력 (주의! 폴더만 입력)")}
 	)
 	@PutMapping("/move")
 	public ApiResponse<String> moveFileOrFolder(
-			@RequestParam("path") String path,
+		@RequestParam("path") String path,
 
-			@RequestParam("to") String to) {
+		@RequestParam("to") String to) {
 		try {
 			fileSystemService.moveFileOrFolder(path, to);
 			return ApiResponse.onSuccess("파일 또는 폴더 이동 성공");
@@ -99,15 +99,16 @@ public class FileSystemController {
 			fileSystemService.updateMarkdown(requestDTO);
 			return ResponseEntity.ok(ApiResponse.onSuccess("마크다운 파일 내용 업데이트 성공"));
 		} catch (Exception e) {
-			return ResponseEntity.status(500).body(ApiResponse.onFailure("MARKDOWN_UPDATE_ERROR", e.getMessage(), null));
+			return ResponseEntity.status(500)
+				.body(ApiResponse.onFailure("MARKDOWN_UPDATE_ERROR", e.getMessage(), null));
 		}
 	}
 
 	@Operation(summary = "파일 또는 폴더 이름 변경", description = "지정된 파일 또는 폴더의 이름을 변경합니다.")
 	@PutMapping("/rename")
 	public ApiResponse<String> renameFileOrFolder(
-			@RequestParam("path") String path,
-			@RequestParam("newName") String newName) {
+		@RequestParam("path") String path,
+		@RequestParam("newName") String newName) {
 		try {
 			fileSystemService.renameFile(path, newName);
 			return ApiResponse.onSuccess("파일 또는 폴더 이름 변경 성공");

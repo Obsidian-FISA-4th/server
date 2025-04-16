@@ -1,12 +1,12 @@
 package Obsidian.demo.service;
 
-import static Obsidian.demo.utils.FileSystemUtil.*;
-
 import Obsidian.demo.apiPayload.code.status.ErrorStatus;
 import Obsidian.demo.apiPayload.exception.GeneralException;
+import Obsidian.demo.config.CustomProperties;
 import Obsidian.demo.dto.FileNodeDto;
 import Obsidian.demo.dto.MarkDownSaveRequestDTO;
 import Obsidian.demo.utils.FileSystemUtil;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,32 +14,42 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
-
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class FileSystemService {
 
-	// private final String rootPath = System.getProperty("user.home") + "/obsidian";
-	private final String rootPath =  "/home/obsidian";
-	private final String vaultPath = rootPath + "/note/";
-	private final String publicPath = rootPath + "/public/";
-
 	private final RedisTemplate<String, Object> redisTemplate;
-
 	private final FileSystemUtil fileSystemUtil;
+	private final CustomProperties customProperties;
+
+	private String rootPath;
+	private String vaultPath;
+	private String publicPath;
+
+	@PostConstruct
+	private void initPaths() {
+		// Spring이 빈 주입 완료한 이후에 rootPath 설정
+
+		this.rootPath = customProperties.getMode().equals("prod") ? "/home/obsidian" :
+			System.getProperty("user.home") + "/obsidian";
+		System.out.println("customProperties.getMode() = " + customProperties.getMode());
+		this.vaultPath = rootPath + "/note/";
+		this.publicPath = rootPath + "/public/";
+
+		log.info("FileSystem 초기화 완료 - rootPath: {}", rootPath);
+	}
 
 	public List<FileNodeDto> getFileTree() {
+
 		String cacheKey = "fileTreeCache::fileTree";
 
 		List<FileNodeDto> cachedTree = (List<FileNodeDto>)redisTemplate.opsForValue().get(cacheKey);
 		if (cachedTree != null) {
-			log.info("[파일 트리 조회] Redis 캐시에서 가져옴");
 			return cachedTree;
 		}
 
@@ -69,7 +79,6 @@ public class FileSystemService {
 		}
 
 		Path path = Paths.get(fullPath);
-		System.out.println(fullPath);
 		if (Files.exists(path)) {
 			throw new RuntimeException("이미 존재하는 파일/폴더: " + fullPath);
 		}
@@ -88,8 +97,6 @@ public class FileSystemService {
 		evictFileTreeCache();
 	}
 
-
-
 	public void moveFileOrFolder(String fromPath, String toPath) throws IOException {
 		Path source = Paths.get(vaultPath + fromPath);
 		Path target = Paths.get(vaultPath + toPath);
@@ -103,17 +110,17 @@ public class FileSystemService {
 		if (!Files.isDirectory(target)) {
 			throw new RuntimeException("대상 경로가 폴더가 아님: " + target);
 		}
+
 		Path resolvedTarget = target.resolve(source.getFileName());
 		Files.move(source, resolvedTarget, StandardCopyOption.REPLACE_EXISTING);
 		log.info("이동 완료: {} → {}", source, resolvedTarget);
 
-		// HTML 동기화
-		Path htmlPath = findPublishedHtmlFile(fromPath);
-		if (htmlPath != null) {
-			Path htmlTarget = Paths.get(publicPath + toPath)
-					.resolve(source.getFileName().toString().replace(".md", ".html"));
-			Files.move(htmlPath, htmlTarget, StandardCopyOption.REPLACE_EXISTING);
-			log.info("연동된 HTML 이동 완료: {} → {}", htmlPath, htmlTarget);
+		Path sourcePath = fileSystemUtil.findPublishedFile(fromPath);
+
+		if (sourcePath != null) {
+			Path targetPath = Paths.get(publicPath + toPath);
+			Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+			log.info("연동된 파일 이동 완료: {} → {}", sourcePath, targetPath);
 		}
 		fileSystemUtil.updateFileTree();
 
@@ -126,14 +133,13 @@ public class FileSystemService {
 			throw new RuntimeException("삭제할 대상이 존재하지 않음: " + path);
 		}
 
-		deleteRecursively(path);
+		fileSystemUtil.deleteRecursively(path);
 
 		log.info("삭제 완료: {}", path);
 
-		Path htmlPath = findPublishedHtmlFile(relativePath);
-		if (htmlPath != null) {
-			deleteRecursively(htmlPath);
-			log.info("연동된 HTML 삭제 완료: {}", htmlPath);
+		Path publishedFile = fileSystemUtil.findPublishedFile(relativePath);
+		if (publishedFile != null) {
+			fileSystemUtil.deleteRecursively(publishedFile);
 		}
 
 		fileSystemUtil.updateFileTree();
@@ -163,9 +169,8 @@ public class FileSystemService {
 	}
 
 	public String readFileContent(String relativePath) throws IOException {
-		Path filePath = relativePath.startsWith(vaultPath)
-				? Paths.get(relativePath)
-				: Paths.get(vaultPath, relativePath);
+		Path filePath =
+			relativePath.startsWith(vaultPath) ? Paths.get(relativePath) : Paths.get(vaultPath, relativePath);
 
 		// 파일 존재 여부 확인
 		if (!Files.exists(filePath)) {
