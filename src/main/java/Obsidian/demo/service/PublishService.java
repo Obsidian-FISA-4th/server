@@ -51,7 +51,7 @@ public class PublishService {
 		// Spring이 빈 주입 완료한 이후에 rootPath 설정
 
 		this.rootPath = customProperties.getMode().equals("prod")
-			? "/home/obsidian"
+			? "/home/ubuntu"
 			: System.getProperty("user.home") + "/obsidian";
 		System.out.println("customProperties.getMode() = " + customProperties.getMode());
 		this.vaultPath = rootPath + "/note/";
