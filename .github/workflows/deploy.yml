@@ -41,6 +41,6 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_SSH_KEY }}
           script: |
-            cd /home/ubuntu/app
+            cd /home/ubuntu/test-docker-compose
             docker-compose pull
             docker-compose up -d
