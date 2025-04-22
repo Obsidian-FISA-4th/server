@@ -1,0 +1,17 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  redis:
+    host: redis
+    port: 6379
+springdoc:
+  swagger-ui:
+    path: /swagger-ui/index.html
+
+secret:
+  api:
+    key: ${KEY}
+custom:
+  mode: ${MODE}
